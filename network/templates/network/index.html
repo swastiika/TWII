@@ -1,0 +1,34 @@
+{% extends "network/layout.html" %}
+{% load static %}
+{% block body %}
+<div class="container">
+    {% if user.is_authenticated %}
+    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-body">
+              <form method="POST" id="compose-form">
+          
+                  <div class="form-group">
+                      <label for="new_post">
+                          <h4>New Post</h4>
+                      </label>
+                      <textarea name="new_post" id="new_post" class="form-control" rows="3" placeholder="What's on your mind?"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-3">Post</button>
+              </form>
+              
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %} 
+      <div id="posts-container"></div>
+    
+    </div>
+    <div id="pagination-buttons"></div>
+  
+  {% endblock %}
+  {% block script %}
+  <script src="{% static 'network/script.js' %}"></script>
+  {% endblock %}
