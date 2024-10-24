@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404,redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -173,3 +173,16 @@ def userposts(request):
     }
 
     return JsonResponse(response, safe=False)  # Return JSON response
+
+
+@login_required
+def follow_user(request, username):
+    user_to_follow = get_object_or_404(User, username=username)
+    request.user.following.add(user_to_follow)  # Add the user to the following list
+    return redirect('profile', username=username)  # Redirect to the profile page
+
+@login_required
+def unfollow_user(request, username):
+    user_to_unfollow = get_object_or_404(User, username=username)
+    request.user.following.remove(user_to_unfollow)  # Remove the user from the following list
+    return redirect('profile', username=username)  # Redirect to the profile page

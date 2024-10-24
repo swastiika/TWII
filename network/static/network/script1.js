@@ -1,3 +1,8 @@
+document.addEventListener("DOMContentLoaded", function() {
+    loadUserPosts(username, 1); // Call the function with the username
+    
+});
+
 async function loadUserPosts(username, page) {
     // Ensure the page number is valid
     if (page < 1) return;
