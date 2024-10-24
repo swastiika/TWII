@@ -20,8 +20,9 @@
               <ul class="navbar-nav mr-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' username=current_user.username %}" id="profile"><strong>{{ current_user.username }}</strong></a>
-                    </li>
+                        <a class="nav-link" href="{% url 'profile' username=current_user.username %}" id="profile-link">
+                            <strong>{{ current_user.username }}</strong>
+                        </a>
                 {% endif %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'index' %}" id="allpost"><strong>All Posts</strong></a>

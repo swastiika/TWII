@@ -28,4 +28,10 @@
 
 {% block script %}
 <script src="{% static 'network/script1.js' %}"></script>
+<script>
+    const username = "{{ user.username }}"; // Extract just the username
+    document.addEventListener("DOMContentLoaded", function() {
+        loadUserPosts(username, 1); // Call the function with the username
+    });
+</script>
 {% endblock %}

@@ -1,8 +1,11 @@
 let currentPage = 1;
-document.addEventListener("DOMContentLoaded",function(){
+document.addEventListener("DOMContentLoaded", function () {
     document.querySelector('#compose-form').addEventListener('submit', compose_post);
+
+    // Load initial posts
     loadPage(currentPage);
-})
+});
+ 
 function compose_post(event) {
     event.preventDefault(); // Prevent the default form submission behavior
 
@@ -63,7 +66,7 @@ function compose_post(event) {
       <div class="col-12">
         <div class="card mb-4">
           <div class="card-body">
-              <a class="nav-link" href="${profileUrl}" id="profile">
+           <a class="nav-link profile-link" id="profile-container"  href="${profileUrl}" data-username="${post.owner}">
                         <strong>${post.owner}</strong>
                     </a>
           <p>${post.content}</p><p>${post.timestamp}</p>
@@ -101,6 +104,3 @@ function compose_post(event) {
                 paginationButtons.appendChild(nextButton);
             }
         }
-
-
-        
