@@ -92,11 +92,18 @@ def new_post(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-def allpage(request):
-    # Retrieve all posts and order them by timestamp
-    page_list = Posts.objects.all().select_related('owner').order_by('-timestamp')
 
-    # Set up pagination
+def allpage(request,task):
+    # Determine posts based on the task parameter
+    if task == "allpost":
+        page_list = Posts.objects.all().select_related('owner').order_by('-timestamp')
+    elif task == "following":
+        following_users = request.user.following.all()
+        page_list = Posts.objects.filter(owner__in=following_users).select_related('owner').order_by('-timestamp')
+    else:
+        return JsonResponse({'error': 'Invalid task'}, status=400)  # Return error if task is invalid
+
+      # Set up pagination
     paginator = Paginator(page_list, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -118,6 +125,8 @@ def allpage(request):
     }
 
     return JsonResponse(response, safe=False)  # Return JSON response
+
+
 
 def showprofile(request,username):
     user = User.objects.get(username=username)

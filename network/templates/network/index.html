@@ -31,4 +31,21 @@
   {% endblock %}
   {% block script %}
   <script src="{% static 'network/script.js' %}"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector('#compose-form').addEventListener('submit', compose_post);
+    const allPostsLink = document.getElementById('following');
+
+    // Add a click event listener
+    allPostsLink.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent the default link behavior
+
+        // Call your function to load all posts or perform any action
+        loadPage(1,'following'); 
+     });
+
+    // Load initial posts
+    loadPage(1,'allpost');
+});
+  </script>
   {% endblock %}

@@ -1,11 +1,3 @@
-let currentPage = 1;
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelector('#compose-form').addEventListener('submit', compose_post);
-
-    // Load initial posts
-    loadPage(currentPage);
-});
- 
 function compose_post(event) {
     event.preventDefault(); // Prevent the default form submission behavior
 
@@ -33,7 +25,7 @@ function compose_post(event) {
         alert("post has been successfully created")
 
          // Prepend to show the new post at the top
-         loadPage(1);
+         loadPage(1,1);
     })
     .catch(error => {
         console.error('Error:', error);
@@ -44,13 +36,13 @@ function compose_post(event) {
     });
 
 }
-   async function loadPage(page) {
+   async function loadPage(page,task) {
             // Ensure the page number is valid
             if (page < 1) return;
 
             try {
                 // Fetch data from the server
-                const response = await fetch(`/posts/?page=${page}`);
+                const response = await fetch(`/posts/${task}/?page=${page}`);
                 const data = await response.json();
 
                 // Clear the posts container
@@ -78,13 +70,13 @@ function compose_post(event) {
 
                 // Update pagination buttons
                 currentPage = page;
-                updatePaginationButtons(data.has_previous, data.has_next);
+                updatePaginationButtons(task,data.has_previous, data.has_next,page);
             } catch (error) {
                 console.error("Error loading page:", error);
             }
         }
 
-        function updatePaginationButtons(hasPrevious, hasNext) {
+        function updatePaginationButtons(task,hasPrevious, hasNext,currentPage) {
             const paginationButtons = document.getElementById('pagination-buttons');
             paginationButtons.innerHTML = '';  // Clear the existing buttons
 
@@ -92,7 +84,7 @@ function compose_post(event) {
             if (hasPrevious) {
                 const prevButton = document.createElement('button');
                 prevButton.innerText = 'Previous';
-                prevButton.onclick = () => loadPage(currentPage - 1);
+                prevButton.onclick = () => loadPage(currentPage - 1,task);
                 paginationButtons.appendChild(prevButton);
             }
 
@@ -100,7 +92,68 @@ function compose_post(event) {
             if (hasNext) {
                 const nextButton = document.createElement('button');
                 nextButton.innerText = 'Next';
-                nextButton.onclick = () => loadPage(currentPage + 1);
+                nextButton.onclick = () => loadPage(currentPage + 1,task);
                 paginationButtons.appendChild(nextButton);
             }
         }
+
+
+
+        async function loadUserPosts(username, page) {
+            // Ensure the page number is valid
+            if (page < 1) return;
+        
+            try {
+                // Fetch data from the server
+                const response = await fetch(`/userposts/?user=${username}&page=${page}`);
+                const data = await response.json();
+        
+                // Clear the posts container
+                const postsContainer = document.getElementById('posts-container');
+                postsContainer.innerHTML = '';
+        
+                // Append posts to the container
+                data.posts.forEach(post => {
+                    const postDiv = document.createElement('div');
+                    postDiv.innerHTML = `
+                    <div class="row">
+      <div class="col-12">
+        <div class="card mb-4">
+          <div class="card-body">
+                        <strong>${post.owner}</strong>
+          <p>${post.content}</p><p>${post.timestamp}</p>
+                    </div>
+                    </div>
+                    </div>`;
+                    postsContainer.appendChild(postDiv);
+                });
+        
+                // Update pagination buttons
+                currentPage = page;
+                updatePaginationButtons_userpost(username, data.has_previous, data.has_next,page);
+            } catch (error) {
+                console.error("Error loading page:", error);
+            }
+        }
+        
+        function updatePaginationButtons_userpost(username, hasPrevious, hasNext,currentPage) {
+            const paginationButtons = document.getElementById('pagination-buttons');
+            paginationButtons.innerHTML = '';  // Clear the existing buttons
+        
+            // Create Previous button if there is a previous page
+            if (hasPrevious) {
+                const prevButton = document.createElement('button');
+                prevButton.innerText = 'Previous';
+                prevButton.onclick = () => loadUserPosts(username, currentPage - 1);
+                paginationButtons.appendChild(prevButton);
+            }
+        
+            // Create Next button if there is a next page
+            if (hasNext) {
+                const nextButton = document.createElement('button');
+                nextButton.innerText = 'Next';
+                nextButton.onclick = () => loadUserPosts(username, currentPage + 1);
+                paginationButtons.appendChild(nextButton);
+            }
+        }
+               

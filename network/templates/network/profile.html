@@ -33,8 +33,13 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'network/script1.js' %}"></script>
+<script src="{% static 'network/script.js' %}"></script>
 <script>
     const username = "{{ user.username }}"; // Extract just the username
+    const current_user = "{{ current_user.username }}"
+    document.addEventListener("DOMContentLoaded", function() {
+    loadUserPosts(username, 1); // Call the function with the username
+    
+});
 </script>
 {% endblock %}
