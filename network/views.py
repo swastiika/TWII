@@ -100,8 +100,13 @@ def allpage(request,task):
     elif task == "following":
         following_users = request.user.following.all()
         page_list = Posts.objects.filter(owner__in=following_users).select_related('owner').order_by('-timestamp')
-    else:
-        return JsonResponse({'error': 'Invalid task'}, status=400)  # Return error if task is invalid
+    else:       
+         # Find the user by username
+        user = User.objects.get(username=task)
+            # Filter the posts by this user
+        page_list = Posts.objects.filter(owner=user).select_related('owner').order_by('-timestamp')
+
+
 
       # Set up pagination
     paginator = Paginator(page_list, 6)
@@ -111,10 +116,12 @@ def allpage(request,task):
     # Manually construct the serialized data to include the owner's name
     data = []
     for post in page_obj.object_list:
+    
         data.append({
             'owner': post.owner.username,  # Get the owner's username
             'content': post.content,
-            'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),  # Format timestamp
+            'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'is_own': post.owner == request.user  # Format timestamp
         })
 
     response = {
@@ -140,48 +147,9 @@ def showprofile(request,username):
         "following":following,
         "follower":follower,
         "user":user,
-        "current_user":request.user
+        "current_user":request.user,
+        'is_owner': user == request.user
     })
-
-
-
-def userposts(request):
-    username = request.GET.get('user')  # Get the username from query params
-    
-    if username:
-        try:
-            # Find the user by username
-            user = User.objects.get(username=username)
-            # Filter the posts by this user
-            page_list = Posts.objects.filter(owner=user).select_related('owner').order_by('-timestamp')
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'User not found'}, status=404)
-    else:
-        return JsonResponse({'error': 'Username is required'}, status=400)
-
-    # Paginate the filtered posts
-    paginator = Paginator(page_list, 6)  # 6 posts per page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    # Manually construct the serialized data to include the owner's username
-    data = []
-    for post in page_obj.object_list:
-        data.append({
-            'owner': post.owner.username,  # Get the owner's username
-            'content': post.content,
-            'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),  # Format the timestamp
-        })
-
-    # Prepare the JSON response
-    response = {
-        'posts': data,  # List of posts with owner info
-        'page_number': page_obj.number,  # Current page number
-        'has_next': page_obj.has_next(),  # Whether there's a next page
-        'has_previous': page_obj.has_previous(),  # Whether there's a previous page
-    }
-
-    return JsonResponse(response, safe=False)  # Return JSON response
 
 
 @login_required
@@ -195,3 +163,4 @@ def unfollow_user(request, username):
     user_to_unfollow = get_object_or_404(User, username=username)
     request.user.following.remove(user_to_unfollow)  # Remove the user from the following list
     return redirect('profile', username=username)  # Redirect to the profile page
+

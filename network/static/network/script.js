@@ -36,7 +36,7 @@ function compose_post(event) {
     });
 
 }
-   async function loadPage(page,task) {
+   async function loadPage(page,task,current_user) {
             // Ensure the page number is valid
             if (page < 1) return;
 
@@ -51,6 +51,14 @@ function compose_post(event) {
 
                 // Append posts to the container
                 data.posts.forEach(post => {
+                    if(post.is_own){
+                       ownerButtonHtml =`<button class="btn btn-warning edit-btn" data-post-id="${post.id}">Edit</button>`;
+
+                    }
+                    else{
+                        ownerButtonHtml =``;
+                    }
+               
                     const profileUrl = `/profile/${post.owner}/`; 
                     const postDiv = document.createElement('div');
                     postDiv.innerHTML = `
@@ -62,6 +70,8 @@ function compose_post(event) {
                         <strong>${post.owner}</strong>
                     </a>
           <p>${post.content}</p><p>${post.timestamp}</p>
+          <p>${current_user}</p>
+           ${ownerButtonHtml}
                     </div>
                     </div>
                     </div>`;
@@ -70,13 +80,13 @@ function compose_post(event) {
 
                 // Update pagination buttons
                 currentPage = page;
-                updatePaginationButtons(task,data.has_previous, data.has_next,page);
+                updatePaginationButtons(task,data.has_previous, data.has_next,page,current_user);
             } catch (error) {
                 console.error("Error loading page:", error);
             }
         }
 
-        function updatePaginationButtons(task,hasPrevious, hasNext,currentPage) {
+        function updatePaginationButtons(task,hasPrevious, hasNext,currentPage,current_user) {
             const paginationButtons = document.getElementById('pagination-buttons');
             paginationButtons.innerHTML = '';  // Clear the existing buttons
 
@@ -84,7 +94,7 @@ function compose_post(event) {
             if (hasPrevious) {
                 const prevButton = document.createElement('button');
                 prevButton.innerText = 'Previous';
-                prevButton.onclick = () => loadPage(currentPage - 1,task);
+                prevButton.onclick = () => loadPage(currentPage - 1,task,current_user);
                 paginationButtons.appendChild(prevButton);
             }
 
@@ -92,68 +102,10 @@ function compose_post(event) {
             if (hasNext) {
                 const nextButton = document.createElement('button');
                 nextButton.innerText = 'Next';
-                nextButton.onclick = () => loadPage(currentPage + 1,task);
+                nextButton.onclick = () => loadPage(currentPage + 1,task,current_user);
                 paginationButtons.appendChild(nextButton);
             }
         }
 
 
-
-        async function loadUserPosts(username, page) {
-            // Ensure the page number is valid
-            if (page < 1) return;
-        
-            try {
-                // Fetch data from the server
-                const response = await fetch(`/userposts/?user=${username}&page=${page}`);
-                const data = await response.json();
-        
-                // Clear the posts container
-                const postsContainer = document.getElementById('posts-container');
-                postsContainer.innerHTML = '';
-        
-                // Append posts to the container
-                data.posts.forEach(post => {
-                    const postDiv = document.createElement('div');
-                    postDiv.innerHTML = `
-                    <div class="row">
-      <div class="col-12">
-        <div class="card mb-4">
-          <div class="card-body">
-                        <strong>${post.owner}</strong>
-          <p>${post.content}</p><p>${post.timestamp}</p>
-                    </div>
-                    </div>
-                    </div>`;
-                    postsContainer.appendChild(postDiv);
-                });
-        
-                // Update pagination buttons
-                currentPage = page;
-                updatePaginationButtons_userpost(username, data.has_previous, data.has_next,page);
-            } catch (error) {
-                console.error("Error loading page:", error);
-            }
-        }
-        
-        function updatePaginationButtons_userpost(username, hasPrevious, hasNext,currentPage) {
-            const paginationButtons = document.getElementById('pagination-buttons');
-            paginationButtons.innerHTML = '';  // Clear the existing buttons
-        
-            // Create Previous button if there is a previous page
-            if (hasPrevious) {
-                const prevButton = document.createElement('button');
-                prevButton.innerText = 'Previous';
-                prevButton.onclick = () => loadUserPosts(username, currentPage - 1);
-                paginationButtons.appendChild(prevButton);
-            }
-        
-            // Create Next button if there is a next page
-            if (hasNext) {
-                const nextButton = document.createElement('button');
-                nextButton.innerText = 'Next';
-                nextButton.onclick = () => loadUserPosts(username, currentPage + 1);
-                paginationButtons.appendChild(nextButton);
-            }
-        }
-               
+//`<button class="btn btn-warning edit-btn" data-post-id="${id}">Edit</button>`;

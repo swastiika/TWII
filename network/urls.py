@@ -11,8 +11,8 @@ urlpatterns = [
     path("compose",views.new_post,name="new_post"),
     path("posts/<str:task>/", views.allpage, name='allpage'),
     path('profile/<str:username>/', views.showprofile, name='profile'),
-    path('userposts/', views.userposts, name='userposts'),
+    # path('userposts/', views.userposts, name='userposts'),
     path('follow/<str:username>/', views.follow_user, name='follow_user'),
     path('unfollow/<str:username>/', views.unfollow_user, name='unfollow_user'),
-
+    
 ]

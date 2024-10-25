@@ -32,6 +32,7 @@
   {% block script %}
   <script src="{% static 'network/script.js' %}"></script>
   <script>
+    const current_user = "{{ current_user.username }}";
     document.addEventListener("DOMContentLoaded", function () {
     document.querySelector('#compose-form').addEventListener('submit', compose_post);
     const allPostsLink = document.getElementById('following');
@@ -41,11 +42,15 @@
         event.preventDefault(); // Prevent the default link behavior
 
         // Call your function to load all posts or perform any action
-        loadPage(1,'following'); 
+        loadPage(1,'following',current_user); 
      });
 
+     document.querySelectorAll(".edit-btn").forEach(button =>{
+      button.addEventListener("click",edit_content())
+     })
+
     // Load initial posts
-    loadPage(1,'allpost');
+    loadPage(1,'allpost',current_user);
 });
   </script>
   {% endblock %}
