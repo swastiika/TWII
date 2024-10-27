@@ -164,3 +164,21 @@ def unfollow_user(request, username):
     request.user.following.remove(user_to_unfollow)  # Remove the user from the following list
     return redirect('profile', username=username)  # Redirect to the profile page
 
+
+
+def save_post(request, post_id):
+    try:
+        # Parse the JSON data sent in the PUT request
+        data = json.loads(request.body)
+        updated_content = data.get("content")
+
+        # Retrieve the post by ID and update its content
+        post = Posts.objects.get(id=post_id)
+        post.content = updated_content
+        post.save()
+
+        return JsonResponse({"success": True, "message": "Post updated successfully."})
+    except Posts.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Post not found."}, status=404)
+    except Exception as e:
+        return JsonResponse({"success": False, "message": "An error occurred."}, status=500)

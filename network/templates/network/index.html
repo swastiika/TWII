@@ -44,10 +44,16 @@
         // Call your function to load all posts or perform any action
         loadPage(1,'following',current_user); 
      });
+     document.querySelectorAll(".edit-btn").forEach(button => {
+      button.addEventListener("click", edit_content); // Remove the parentheses
+    });
+    const allpost = document.getElementById('allpost');
+    allpost.addEventListener('click', function (event) {
+    event.preventDefault();
 
-     document.querySelectorAll(".edit-btn").forEach(button =>{
-      button.addEventListener("click",edit_content())
-     })
+    // Call your function to load all posts or perform any action
+    loadPage(1,'allpost',current_user);
+ });
 
     // Load initial posts
     loadPage(1,'allpost',current_user);

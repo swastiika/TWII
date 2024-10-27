@@ -69,7 +69,10 @@ function compose_post(event) {
            <a class="nav-link profile-link" id="profile-container"  href="${profileUrl}" data-username="${post.owner}">
                         <strong>${post.owner}</strong>
                     </a>
-          <p>${post.content}</p><p>${post.timestamp}</p>
+          <div id="post-content-${post.id}">
+          ${post.content}
+          </div>
+          <p>${post.timestamp}</p>
           <p>${current_user}</p>
            ${ownerButtonHtml}
                     </div>
@@ -108,4 +111,47 @@ function compose_post(event) {
         }
 
 
-//`<button class="btn btn-warning edit-btn" data-post-id="${id}">Edit</button>`;
+        function edit_content() {
+            const postId = this.getAttribute("data-post-id"); // Assuming each button has a data-post-id attribute
+            const postContentDiv = document.getElementById(`post-content-${postId}`);
+            const originalContent = postContentDiv.textContent.trim();
+        
+            // Create a textarea and populate with the original content
+            const textarea = document.createElement("textarea");
+            textarea.classList.add("form-control");
+            textarea.value = originalContent;
+        
+            // Create a Save button
+            const saveButton = document.createElement("button");
+            saveButton.classList.add("btn", "btn-success", "save-btn");
+            saveButton.textContent = "Save";
+        
+            // Clear the post content area and add the textarea and Save button
+            postContentDiv.innerHTML = "";
+            postContentDiv.appendChild(textarea);
+            postContentDiv.appendChild(saveButton);
+        
+            // Add event listener to the Save button
+            saveButton.addEventListener("click", () => {
+              const updatedContent = textarea.value; // Get updated content
+        
+              // Example fetch call to save updated content
+              fetch(`/save-post/${postId}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ content: updatedContent })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  // Update the post content and remove textarea
+                  postContentDiv.innerHTML = updatedContent;
+                } else {
+                  alert("Error updating post");
+                }
+              })
+              .catch(error => console.log(error));
+            });
+        }
