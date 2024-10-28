@@ -79,9 +79,7 @@ function compose_post(event) {
                     </div>`;
                     postsContainer.appendChild(postDiv);
                 });
-
-                // Update pagination buttons
-                currentPage = page;
+                attachEditButtons();
                 updatePaginationButtons(task,data.has_previous, data.has_next,page);
             } catch (error) {
                 console.error("Error loading page:", error);
@@ -149,3 +147,13 @@ function compose_post(event) {
             }
         })
         .catch(error => console.log(error));
+    })
+}
+
+function attachEditButtons() {
+    console.log(document.querySelector('.edit-btn'));
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        console.log("Attaching event listener to button:", button);
+        button.addEventListener('click', edit_content);
+    });
+}

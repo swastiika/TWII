@@ -114,7 +114,8 @@ def allpage(request,task):
             'owner': post.owner.username,  # Get the owner's username
             'content': post.content,
             'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            'is_own': post.owner == request.user  # Format timestamp
+            'is_own': post.owner == request.user,  # Format timestamp
+            'id':post.id
         })
 
     response = {
