@@ -1,6 +1,7 @@
 {% extends "network/layout.html" %}
 {% load static %}
 {% block body %}
+<div class="profile">
 {% if is_owner %}
     <h3>MY PROFILE</h3>
 {% else %}
@@ -23,6 +24,7 @@
 </div>
 <div>
     <p>followings:{{following}}</p>
+</div>
 </div>
 <div id="posts-container"></div>
     
@@ -48,6 +50,7 @@
     const allPostsLink = document.getElementById('following');
     allPostsLink.addEventListener('click', function (event) {
     event.preventDefault();
+    document.querySelector('.profile').style.display = 'none';
 
     // Call your function to load all posts or perform any action
     loadPage(1,'following',current_user); 
@@ -55,6 +58,7 @@
  const allpost = document.getElementById('allpost');
     allpost.addEventListener('click', function (event) {
     event.preventDefault();
+    document.querySelector('.profile').style.display = 'none';
 
     // Call your function to load all posts or perform any action
     loadPage(1,'allpost',current_user); 
