@@ -78,19 +78,12 @@ def new_post(request):
         data = json.loads(request.body)
         content = data.get('content')
 
-        # Create a new post (ensure the user is authenticated)
+        # Create and save a new post (ensure the user is authenticated)
         post = Posts(owner=request.user, content=content)
         post.save()
-
-        # Return the new post data
-        return JsonResponse({
-            "owner": post.owner.username,  # Return the username
-            "content": post.content,
-            "timestamp": post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),  # Format timestamp
-        }, status=201)
+        return HttpResponse(status=204)
 
     return JsonResponse({"error": "Invalid request"}, status=400)
-
 
 
 def allpage(request,task):

@@ -38,9 +38,8 @@
 <script src="{% static 'network/script.js' %}"></script>
 <script>
     const username = "{{ user.username }}"; // Extract just the username
-    const current_user = "{{ current_user.username }}"
     document.addEventListener("DOMContentLoaded", function() {
-    loadPage(1,username,current_user) // Call the function with the username
+    loadPage(1,username) // Call the function with the username
     document.querySelectorAll(".edit-btn").forEach(button =>{
       button.addEventListener("click",edit_content())
      });
@@ -53,7 +52,7 @@
     document.querySelector('.profile').style.display = 'none';
 
     // Call your function to load all posts or perform any action
-    loadPage(1,'following',current_user); 
+    loadPage(1,'following'); 
  });
  const allpost = document.getElementById('allpost');
     allpost.addEventListener('click', function (event) {
@@ -61,7 +60,7 @@
     document.querySelector('.profile').style.display = 'none';
 
     // Call your function to load all posts or perform any action
-    loadPage(1,'allpost',current_user); 
+    loadPage(1,'allpost'); 
  });
     
 });

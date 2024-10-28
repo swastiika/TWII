@@ -15,17 +15,17 @@ function compose_post(event) {
         })
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(result => {
-        document.querySelector('#new_post').value='';
-        alert("post has been successfully created")
+        if (response.ok) {
+            // Clear the input field after successful post creation
+            document.querySelector('#new_post').value = '';
+            alert("Post has been successfully created");
 
-         // Prepend to show the new post at the top
-         loadPage(1,1);
+            // Prepend to show the new post at the top
+            loadPage(1, 'allpost');
+        } else {
+            // Handle errors returned from the server
+            throw new Error('Error creating post. Please try again.');
+        }
     })
     .catch(error => {
         console.error('Error:', error);
@@ -34,9 +34,9 @@ function compose_post(event) {
             <p>${error.message}</p>
         `;
     });
-
 }
-   async function loadPage(page,task,current_user) {
+
+   async function loadPage(page,task) {
             // Ensure the page number is valid
             if (page < 1) return;
 
@@ -73,7 +73,6 @@ function compose_post(event) {
           ${post.content}
           </div>
           <p>${post.timestamp}</p>
-          <p>${current_user}</p>
            ${ownerButtonHtml}
                     </div>
                     </div>
@@ -83,13 +82,13 @@ function compose_post(event) {
 
                 // Update pagination buttons
                 currentPage = page;
-                updatePaginationButtons(task,data.has_previous, data.has_next,page,current_user);
+                updatePaginationButtons(task,data.has_previous, data.has_next,page);
             } catch (error) {
                 console.error("Error loading page:", error);
             }
         }
 
-        function updatePaginationButtons(task,hasPrevious, hasNext,currentPage,current_user) {
+        function updatePaginationButtons(task,hasPrevious, hasNext,currentPage) {
             const paginationButtons = document.getElementById('pagination-buttons');
             paginationButtons.innerHTML = '';  // Clear the existing buttons
 
@@ -97,7 +96,7 @@ function compose_post(event) {
             if (hasPrevious) {
                 const prevButton = document.createElement('button');
                 prevButton.innerText = 'Previous';
-                prevButton.onclick = () => loadPage(currentPage - 1,task,current_user);
+                prevButton.onclick = () => loadPage(currentPage - 1,task);
                 paginationButtons.appendChild(prevButton);
             }
 
@@ -105,53 +104,50 @@ function compose_post(event) {
             if (hasNext) {
                 const nextButton = document.createElement('button');
                 nextButton.innerText = 'Next';
-                nextButton.onclick = () => loadPage(currentPage + 1,task,current_user);
+                nextButton.onclick = () => loadPage(currentPage + 1,task);
                 paginationButtons.appendChild(nextButton);
             }
         }
 
 
-        function edit_content() {
-            const postId = this.getAttribute("data-post-id"); // Assuming each button has a data-post-id attribute
-            const postContentDiv = document.getElementById(`post-content-${postId}`);
-            const originalContent = postContentDiv.textContent.trim();
-        
-            // Create a textarea and populate with the original content
-            const textarea = document.createElement("textarea");
-            textarea.classList.add("form-control");
-            textarea.value = originalContent;
-        
-            // Create a Save button
-            const saveButton = document.createElement("button");
-            saveButton.classList.add("btn", "btn-success", "save-btn");
-            saveButton.textContent = "Save";
-        
-            // Clear the post content area and add the textarea and Save button
-            postContentDiv.innerHTML = "";
-            postContentDiv.appendChild(textarea);
-            postContentDiv.appendChild(saveButton);
-        
-            // Add event listener to the Save button
-            saveButton.addEventListener("click", () => {
-              const updatedContent = textarea.value; // Get updated content
-        
-              // Example fetch call to save updated content
-              fetch(`/save-post/${postId}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ content: updatedContent })
-              })
-              .then(response => response.json())
-              .then(data => {
-                if (data.success) {
-                  // Update the post content and remove textarea
-                  postContentDiv.innerHTML = updatedContent;
-                } else {
-                  alert("Error updating post");
-                }
-              })
-              .catch(error => console.log(error));
-            });
-        }
+       function edit_content(event) {
+    const button = event.currentTarget;
+    const postId = button.getAttribute("data-post-id");
+
+    const postContentDiv = document.getElementById(`post-content-${postId}`);
+    const originalContent = postContentDiv.querySelector('p').textContent.trim();
+
+    // Create a textarea and Save button
+    const textarea = document.createElement("textarea");
+    textarea.classList.add("form-control");
+    textarea.value = originalContent;
+
+    const saveButton = document.createElement("button");
+    saveButton.classList.add("btn", "btn-success", "save-btn");
+    saveButton.textContent = "Save";
+
+    postContentDiv.innerHTML = ""; // Clear the content
+    postContentDiv.appendChild(textarea);
+    postContentDiv.appendChild(saveButton);
+
+    saveButton.addEventListener("click", () => {
+        const updatedContent = textarea.value;
+
+        fetch(`/save-post/${postId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ content: updatedContent })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                postContentDiv.innerHTML = updatedContent; // Update content
+            } else {
+                alert("Error updating post");
+            }
+        })
+        .catch(error => console.log(error));
+    });
+}
