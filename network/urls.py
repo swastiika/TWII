@@ -14,6 +14,6 @@ urlpatterns = [
     # path('userposts/', views.userposts, name='userposts'),
     path('follow/<str:username>/', views.follow_user, name='follow_user'),
     path('unfollow/<str:username>/', views.unfollow_user, name='unfollow_user'),
-    path('save-post/<int:postId>',views.save_post,name="save_post")
+    path('save-post/<int:post_id>',views.save_post,name="save_post")
     
 ]

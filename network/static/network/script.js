@@ -19,9 +19,8 @@ function compose_post(event) {
             // Clear the input field after successful post creation
             document.querySelector('#new_post').value = '';
             alert("Post has been successfully created");
+            window.location.reload();
 
-            // Prepend to show the new post at the top
-            loadPage(1, 'allpost');
         } else {
             // Handle errors returned from the server
             throw new Error('Error creating post. Please try again.');
@@ -70,7 +69,7 @@ function compose_post(event) {
                         <strong>${post.owner}</strong>
                     </a>
           <div id="post-content-${post.id}">
-          ${post.content}
+         <p> ${post.content}</p>
           </div>
           <p>${post.timestamp}</p>
            ${ownerButtonHtml}
@@ -127,10 +126,8 @@ function compose_post(event) {
     postContentDiv.innerHTML = ""; // Clear the content
     postContentDiv.appendChild(textarea);
     postContentDiv.appendChild(saveButton);
-
     saveButton.addEventListener("click", () => {
         const updatedContent = textarea.value;
-
         fetch(`/save-post/${postId}`, {
             method: "PUT",
             headers: {
@@ -138,15 +135,22 @@ function compose_post(event) {
             },
             body: JSON.stringify({ content: updatedContent })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                postContentDiv.innerHTML = updatedContent; // Update content
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+
             } else {
-                alert("Error updating post");
+                // Handle errors returned from the server
+                throw new Error('Error creating post. Please try again.');
             }
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+            console.error('Error:', error);
+            document.querySelector('#post-message').innerHTML = `
+                <h1>Error creating post</h1>
+                <p>${error.message}</p>
+            `;
+        });
     })
 }
 
