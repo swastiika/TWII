@@ -1,6 +1,19 @@
 {% extends "network/layout.html" %}
 {% load static %}
 {% block body %}
+<div class="profile" data-username="">
+  <h3 id="profile-header"></h3>
+   <div class="follow-button-container"></div>
+    <div>
+   <p>Followers: <span id="follower-count"></span></p>
+     </div>
+    <div>
+            <p>Following: <span id="following-count"></span></p>
+     </div>
+    <div>
+        <p>Email: <span id="profile-email"></span></p>
+     </div>
+</div>
 <div class="container">
     {% if user.is_authenticated %}
     <div class="row">
@@ -23,40 +36,17 @@
       </div>
     </div>
     {% endif %} 
+
       <div id="posts-container"></div>
     
     </div>
+  
+
+
     <div id="pagination-buttons"></div>
   
   {% endblock %}
-  {% block script %}
-  <script src="{% static 'network/script.js' %}"></script>
-  <script>
-    const current_user = "{{ current_user.username }}";
-    document.addEventListener("DOMContentLoaded", function () {
-    document.querySelector('#compose-form').addEventListener('submit', compose_post);
-    const allPostsLink = document.getElementById('following');
+ {% block script %}
+ <script src="{% static 'network/script.js' %}"></script> 
 
-    // Add a click event listener
-    allPostsLink.addEventListener('click', function (event) {
-        event.preventDefault(); // Prevent the default link behavior
-
-        // Call your function to load all posts or perform any action
-        loadPage(1,'following',current_user); 
-     });
-     document.querySelectorAll(".edit-btn").forEach(button => {
-      button.addEventListener("click", edit_content); // Remove the parentheses
-    });
-    const allpost = document.getElementById('allpost');
-    allpost.addEventListener('click', function (event) {
-    event.preventDefault();
-
-    // Call your function to load all posts or perform any action
-    loadPage(1,'allpost');
- });
-
-    // Load initial posts
-    loadPage(1,'allpost');
-});
-  </script>
-  {% endblock %}
+ {% endblock %}

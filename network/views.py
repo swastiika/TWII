@@ -109,7 +109,6 @@ def allpage(request,task):
     # Manually construct the serialized data to include the owner's name
     data = []
     for post in page_obj.object_list:
-    
         data.append({
             'owner': post.owner.username,  # Get the owner's username
             'content': post.content,
@@ -130,36 +129,41 @@ def allpage(request,task):
 
 
 def showprofile(request,username):
-    user = User.objects.get(username=username)
-    following_list = user.following.all()
-    followers_list = user.followers.all()
-    following = following_list.count()
-    follower = followers_list.count()
-    return render(request,"network/profile.html",{
-        "following_list":followers_list,
-        "follower_list":followers_list,
-        "following":following,
-        "follower":follower,
-        "user":user,
-        "current_user":request.user,
-        'is_owner': user == request.user
-    })
+    try:
+        user = User.objects.get(username=username)
+        data = user.serialize()
+        is_owner = request.user == user
 
+        # Construct the response data
+        response = {
+            "username": data['username'],
+            "followers": data['followers'],
+            "following": data['following'],
+            "is_owner": is_owner,
+            "follower_count":data['follower_count'],
+            "following_count":data['following_count'],
+            "email":data['email'],
+            "current_user_is_follower": request.user.following.filter(username=username).exists()  
+        }
+        return JsonResponse(response)  # Use the serialize method to return JSON
 
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+@csrf_exempt
 @login_required
 def follow_user(request, username):
     user_to_follow = get_object_or_404(User, username=username)
     request.user.following.add(user_to_follow)  # Add the user to the following list
-    return redirect('profile', username=username)  # Redirect to the profile page
-
+    return HttpResponse(status = 204)  # Redirect to the profile page
+@csrf_exempt
 @login_required
 def unfollow_user(request, username):
     user_to_unfollow = get_object_or_404(User, username=username)
     request.user.following.remove(user_to_unfollow)  # Remove the user from the following list
-    return redirect('profile', username=username)  # Redirect to the profile page
+    return HttpResponse(status = 204)
 
-
-
+@csrf_exempt
+@login_required
 @csrf_exempt
 def save_post(request, post_id):
     if request.method == "PUT":
@@ -175,4 +179,8 @@ def save_post(request, post_id):
 
 
 
-
+def get_follower_count(request, username):
+    user = get_object_or_404(User, username=username)
+    follower_count = user.followers.count()  # Assuming the related name for followers is "followers"
+    
+    return JsonResponse({"follower_count": follower_count}, status=200)

@@ -10,10 +10,10 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("compose",views.new_post,name="new_post"),
     path("posts/<str:task>/", views.allpage, name='allpage'),
-    path('profile/<str:username>/', views.showprofile, name='profile'),
-    # path('userposts/', views.userposts, name='userposts'),
+    path('profile/<str:username>/', views.showprofile, name='showprofile'),
     path('follow/<str:username>/', views.follow_user, name='follow_user'),
     path('unfollow/<str:username>/', views.unfollow_user, name='unfollow_user'),
-    path('save-post/<int:post_id>',views.save_post,name="save_post")
+    path('save-post/<int:post_id>',views.save_post,name="save_post"),
+    path('followers/<str:username>/', views.get_follower_count, name='get_follower_count'),
     
 ]
