@@ -86,6 +86,13 @@ function compose_post(event) {
                     else{
                         ownerButtonHtml =``;
                     }
+                    // Like button, showing liked state based on `post.is_liked`
+                    const likeButtonHtml = `
+                        <button class="btn like-btn ${post.is_liked ? 'btn-danger' : 'btn-outline-danger'}" data-post-id="${post.id}" id="like_button">
+                        <span class="like-count">${post.likes_count}</span> ❤️
+                         </button>
+                        `;
+
                     const postDiv = document.createElement('div');
                     postDiv.innerHTML = `
                     <div class="row">
@@ -100,6 +107,7 @@ function compose_post(event) {
           </div>
           <p>${post.timestamp}</p>
            ${ownerButtonHtml}
+           ${likeButtonHtml}
                     </div>
                     </div>
                     </div>`;
@@ -190,7 +198,39 @@ function attachEditButtons() {
         console.log("attaching event listener to profile:",profile)
         profile.addEventListener('click',show_profile)
 
-    })     
+    });
+    document.querySelectorAll('#like_button').forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const button = event.currentTarget;
+            const postId = button.getAttribute("data-post-id");
+
+          // Send request to toggle like status
+            fetch(`/like/${postId}/`, {
+                method: "PUT"
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the button appearance based on the new like status
+                    button.classList.toggle('btn-danger', data.is_liked);
+                    button.classList.toggle('btn-outline-danger', !data.is_liked);
+    
+                    // Update the like count in the button
+                    const likeCount = button.querySelector('.like-count');
+                    likeCount.textContent = data.likes_count;
+    
+                    // Update the icon text or color as needed
+                    button.innerHTML = `<span class="like-count">${data.likes_count}</span> ❤️`;
+                } else {
+                    console.error('Error updating like status');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+    
+
 
     
 }
@@ -290,6 +330,3 @@ async function updateFollowerCount(username) {
     }
 }
 
-// Usage example
-// Call this function with the specific username to update the follower count on the page
-updateFollowerCount('sostika');

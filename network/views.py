@@ -102,7 +102,7 @@ def allpage(request,task):
 
 
       # Set up pagination
-    paginator = Paginator(page_list, 6)
+    paginator = Paginator(page_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -114,7 +114,9 @@ def allpage(request,task):
             'content': post.content,
             'timestamp': post.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
             'is_own': post.owner == request.user,  # Format timestamp
-            'id':post.id
+            'id':post.id,
+            'likes_count': post.likes.count(),  # Total number of likes
+            'is_liked': post.likes.filter(id=request.user.id).exists()  # True if the current user has liked the post
         })
 
     response = {
@@ -184,3 +186,30 @@ def get_follower_count(request, username):
     follower_count = user.followers.count()  # Assuming the related name for followers is "followers"
     
     return JsonResponse({"follower_count": follower_count}, status=200)
+
+
+
+@csrf_exempt
+
+def toggle_like(request, post_id):
+    # if not request.user.is_authenticated:
+    #     return JsonResponse({'error': 'Authentication required'}, status=403)
+
+    post = get_object_or_404(Posts, id=post_id)
+    
+    # Toggle like status
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        is_liked = False
+    else:
+        post.likes.add(request.user)
+        is_liked = True
+
+    # Return JSON response with updated like count and user's like status
+    response_data = {
+        'likes_count': post.likes.count(),
+        'is_liked': is_liked,
+        'success': True,
+    }
+
+    return JsonResponse(response_data, status=200)

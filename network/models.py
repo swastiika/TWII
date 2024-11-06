@@ -27,7 +27,7 @@ class Posts(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")  # Use plural for related_name
     timestamp = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length=500)
-    likes = models.IntegerField(default=0)
+    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
 
     def serialize(self):
         return {
@@ -35,7 +35,7 @@ class Posts(models.Model):
             "owner": self.owner.username,  # Return username instead of User object
             "content": self.content,
             "timestamp": self.timestamp.strftime('%Y-%m-%d %H:%M:%S'),  # Format timestamp
-            "likes": self.likes  # Include likes in serialization
+            "likes": [user.username for user in self.likes.all()]  
         }
 
     def __str__(self):
